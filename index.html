@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PFC Games | Simple. Professional. Powerful.</title>
+    <meta name="description"
+        content="PFC Games creates the best racing and robot transformation games. Experience high-performance gameplay with a professional, attractive design.">
+    <!-- Premium Global Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00f2fe;
+            --primary-glow: rgba(0, 242, 254, 0.3);
+            --secondary: #7000ff;
+            --dark: #020617;
+            --card-bg: rgba(15, 23, 42, 0.6);
+            /* Slightly more transparent for simplicity */
+            --border: rgba(255, 255, 255, 0.1);
+            --transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--dark);
+            color: #ffffff;
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Clean & Attractive Background --- */
+        .master-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: url('hero_bg.png') no-repeat center center;
+            background-size: cover;
+            filter: brightness(0.3) saturate(1.2) blur(2px);
+            /* Added slight blur for simplicity */
+        }
+
+        .master-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 50% 10%, transparent 20%, var(--dark) 100%);
+        }
+
+        /* --- Typography Hierarchy --- */
+        h1,
+        h2,
+        h3 {
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #fff 50%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* --- Ghost Navigation (Simple & Premium) --- */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 35px 0;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        header.scrolled {
+            background: rgba(2, 6, 23, 0.85);
+            backdrop-filter: blur(20px);
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 60px;
+        }
+
+        .logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-img {
+            height: 48px;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.2));
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #fff;
+        }
+
+        nav ul {
+            display: flex;
+            gap: 50px;
+            list-style: none;
+        }
+
+        nav a {
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            font-weight: 400;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: var(--transition);
+        }
+
+        nav a:hover {
+            color: #fff;
+        }
+
+        /* --- Hero Section (Simplified) --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .hero h1 {
+            font-size: clamp(45px, 10vw, 95px);
+            margin-bottom: 25px;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            max-width: 750px;
+            margin-bottom: 45px;
+            font-weight: 300;
+        }
+
+        .btn {
+            padding: 16px 40px;
+            border-radius: 8px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--dark);
+            box-shadow: 0 10px 30px var(--primary-glow);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(112, 0, 255, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            margin-left: 20px;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: #fff;
+            transform: translateY(-5px);
+        }
+
+        /* --- Innovation Lab (Clean 2x2 Grid) --- */
+        .section-padding {
+            padding: 140px 20px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-header h2 {
+            font-size: 45px;
+            margin-bottom: 20px;
+        }
+
+        .section-header p {
+            font-size: 17px;
+            color: rgba(255, 255, 255, 0.4);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .lab-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .lab-item {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 45px;
+            transition: var(--transition);
+            position: relative;
+            min-height: 300px;
+        }
+
+        .lab-item:hover {
+            border-color: var(--primary);
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .icon-box {
+            width: 45px;
+            height: 45px;
+            color: var(--primary);
+            margin-bottom: 30px;
+        }
+
+        .lab-item h3 {
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .lab-item p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 15px;
+            font-weight: 300;
+        }
+
+        .badge {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(0, 242, 254, 0.05);
+            color: var(--primary);
+            border: 1px solid var(--primary-glow);
+        }
+
+        /* --- Portfolio (Modern Showcase) --- */
+        .showcase-card {
+            background: rgba(2, 6, 23, 0.5);
+            backdrop-filter: blur(40px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            display: flex;
+            max-width: 1100px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .visual-box {
+            flex: 1;
+            background: linear-gradient(145deg, #020617, #1e3a8a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+            position: relative;
+        }
+
+        .visual-box img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            z-index: 2;
+        }
+
+        .info-box {
+            flex: 1.2;
+            padding: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .info-box h3 {
+            font-size: 38px;
+            margin-bottom: 25px;
+        }
+
+        .info-box p {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        /* --- Footer --- */
+        footer {
+            padding: 100px 20px 50px;
+            background: #010208;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-grid {
+            max-width: 1200px;
+            margin: 0 auto 60px;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+        }
+
+        .f-col h4 {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .f-col ul {
+            list-style: none;
+        }
+
+        .f-col li {
+            margin-bottom: 12px;
+        }
+
+        .f-col a {
+            color: rgba(255, 255, 255, 0.4);
+            text-decoration: none;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .f-col a:hover {
+            color: var(--primary);
+        }
+
+        .legal {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            opacity: 0.2;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* --- Animations --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 1024px) {
+            .nav-inner {
+                padding: 0 30px;
+            }
+
+            nav ul {
+                display: none;
+            }
+
+            .lab-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .showcase-card {
+                flex-direction: column;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="master-bg"></div>
+    <div class="master-overlay"></div>
+
+    <header id="main-header">
+        <div class="nav-inner">
+            <a href="#home" class="logo-wrap">
+                <img src="pfc logo.png" alt="PFC Logo" class="logo-img">
+                <span class="logo-text">PFC GAMES</span>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#games">Games</a></li>
+                    <li><a href="#lab">Lab</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+            <a href="#contact" class="btn btn-primary" style="padding: 10px 24px; font-size: 12px;">Get In Touch</a>
+        </div>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <h1 class="text-gradient">Welcome To<br>PFC Games Zone</h1>
+            <p>Experience high-speed action and amazing robot transformations. Simple to play, impossible to put down.
+                Professional rendering, realistic physics, and pure fun.</p>
+            <div class="btn-group">
+                <a href="#games" class="btn btn-primary">Our Games</a>
+                <a href="#lab" class="btn btn-outline">Innovation Lab</a>
+            </div>
+        </section>
+
+        <div class="section-padding" id="lab">
+            <div class="section-wrap">
+                <div class="section-header reveal">
+                    <h2>Innovation Lab</h2>
+                    <p>We use the latest tech like AI and Satellite sync to build games that run perfectly on every
+                        device.</p>
+                </div>
+
+                <div class="lab-grid">
+                    <div class="lab-item reveal">
+                        <span class="badge">Advanced AI</span>
+                        <div class="icon-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            </svg>
+                        </div>
+                        <h3>Smart Robot AI</h3>
+                        <p>Building intelligent robots that learn and react to your style. Experience a new level of
+                            challenge in every race.</p>
+                    </div>
+
+                    <div class="lab-item reveal">
+                        <span class="badge">Quantum Tech</span>
+                        <div class="icon-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="2" y1="12" x2="22" y2="12"></line>
+                            </svg>
+                        </div>
+                        <h3>Fast Physics Logic</h3>
+                        <p>Using quantum-inspired math to power super-smooth car handling and instant robot
+                            transformations.</p>
+                    </div>
+
+                    <div class="lab-item reveal">
+                        <span class="badge">Satellite Sync</span>
+                        <div class="icon-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                            </svg>
+                        </div>
+                        <h3>Global Multiplayer</h3>
+                        <p>High-speed satellite synchronization for lag-free multiplayer races with players across the
+                            globe.</p>
+                    </div>
+
+                    <div class="lab-item reveal">
+                        <span class="badge">Nano Graphics</span>
+                        <div class="icon-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 12s-4-8-10-8S2 12 2 12s4 8 10 8 10-8 10-8z"></path>
+                            </svg>
+                        </div>
+                        <h3>8K Visual Core</h3>
+                        <p>Nano-engineered graphics that bring cinematic, console-quality detail directly to your mobile
+                            screens.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="section-padding" id="games" style="background: rgba(1, 4, 15, 0.4);">
+            <div class="section-header reveal">
+                <h2>Featured Games</h2>
+                <p>Our top-rated títulos used by millions of players worldwide.</p>
+            </div>
+
+            <div class="showcase-card reveal">
+                <div class="visual-box">
+                    <img src="app_icon.png" alt="Car Racing Robot Transform Icon">
+                </div>
+                <div class="info-box">
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <span
+                            style="font-size: 10px; font-weight: 800; color: var(--primary); background: rgba(0,242,254,0.1); padding: 4px 10px; border-radius: 4px;">5.0
+                            RATING</span>
+                        <span
+                            style="font-size: 10px; font-weight: 800; color: #fff; background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 4px;">BEST
+                            OF 2026</span>
+                    </div>
+                    <h3>Car Racing<br>Robot Transform</h3>
+                    <p>The ultimate high-speed racing adventure. Drive, transform, and win in a world of realistic
+                        physics and incredible graphics.</p>
+                    <a class="btn btn-primary"
+                        href="https://play.google.com/store/apps/details?id=com.pfcgames.car_race_game" target="_blank"
+                        style="display: inline-flex; align-items: center; gap: 10px; padding: 14px 30px;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M5,3.06c-0.27,0.22-0.42,0.6-0.42,1.06v15.75c0,0.46,0.15,0.84,0.42,1.06l0.06,0.06L14,12.01v-0.02L5.06,3l-0.06,0.06V3.06z M17.3,15.35l-3.3-3.32v-0.02l3.3-3.32l0.07,0.04l3.9,2.2c1.12,0.63,1.12,1.67,0,2.31l-3.9,2.2L17.3,15.35z M13.34,11.37L5.67,3.71 c0.16-0.1,0.39-0.13,0.67-0.13c0.41,0,0.85,0.15,1.38,0.45l7.73,4.37L13.34,11.37z M13.34,12.66l2.11,2.11l-7.73,4.37 c-0.44,0.25-0.84,0.38-1.19,0.38c-0.34,0-0.62-0.11-0.81-0.31L13.34,12.66z" />
+                        </svg>
+                        Download On Playstore
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="section-padding" style="text-align: center;">
+            <div class="section-header reveal">
+                <h2>About Us</h2>
+            </div>
+            <p class="reveal" style="font-size: 20px; color: #fff; max-width: 800px; margin: 0 auto; font-weight: 300;">
+                Founded in 2020, PFC Games designs and builds the future of mobile entertainment. Our objective is
+                simple: create the most fun, attractive, and high-quality games for everyone to enjoy.</p>
+        </section>
+
+        <section id="contact" class="section-padding" style="text-align: center; border-top: 1px solid var(--border);">
+            <h2 class="reveal" style="margin-bottom: 20px;">Ready to Play?</h2>
+            <p class="reveal" style="color: rgba(255,255,255,0.4); margin-bottom: 40px;">Contact us for any feedback or
+                collaboration.</p>
+            <div class="reveal">
+                <a href="mailto:support.pfcgames@gmail.com" class="btn btn-primary"
+                    style="border-radius: 4px; margin-bottom: 20px;">Connect</a>
+
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-grid">
+            <div class="f-col">
+                <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px;">
+                    <img src="pfc logo.png" alt="PFC Logo"
+                        style="height: 60px; width: auto; object-fit: contain; align-self: flex-start;">
+                    <div style="font-size: 24px; font-weight: 800;">PFC GAMES</div>
+                </div>
+                <p style="color: rgba(255, 255, 255, 0.4); font-size: 14px; max-width: 250px;">Creating the future of
+                    interactive entertainment, one race at a time.</p>
+            </div>
+            <div class="f-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#games">Games</a></li>
+                    <li><a href="#lab">The Lab</a></li>
+                </ul>
+            </div>
+            <div class="f-col">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#about">Our Story</a></li>
+                    <li><a href="#">Privacy Matrix</a></li>
+                    <li><a href="#">Terms</a></li>
+                </ul>
+            </div>
+            <div class="f-col">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="mailto:support.pfcgames@gmail.com"
+                            style="color: var(--primary);">support.pfcgames@gmail.com</a>
+                    </li>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Feedback</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="legal">
+            <span>© 2026 PFC GAMES STUDIO. ALL RIGHTS RESERVED.</span>
+            <span style="opacity: 0.8; color: var(--primary);">OFFICIAL CONTACT: support.pfcgames@gmail.com</span>
+            <span>AUTH: STUDIO-PFC-LAB</span>
+        </div>
+    </footer>
+
+    <script>
+        // Header Effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('main-header');
+            if (window.scrollY > 80) header.classList.add('scrolled');
+            else header.classList.remove('scrolled');
+        });
+
+        // Reveal Effect
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('active');
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+
+</body>
+
+</html>

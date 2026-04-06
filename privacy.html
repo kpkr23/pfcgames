@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy – PFC Games</title>
+    <meta name="description" content="Privacy Policy for PFC Games and Car Racing Robot Transform game.">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00f2fe;
+            --primary-glow: rgba(0, 242, 254, 0.3);
+            --secondary: #7000ff;
+            --dark: #020617;
+            --border: rgba(255, 255, 255, 0.1);
+            --transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--dark);
+            color: #fff;
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .master-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
+            background: url('hero_bg.png') no-repeat center center;
+            background-size: cover;
+            filter: brightness(0.2) saturate(1.2) blur(2px);
+        }
+        .master-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background: radial-gradient(circle at 50% 10%, transparent 20%, var(--dark) 100%);
+        }
+
+        /* Nav */
+        header {
+            position: fixed; top: 0; width: 100%;
+            padding: 24px 0; z-index: 1000;
+            background: rgba(2,6,23,0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-inner {
+            max-width: 1200px; margin: 0 auto;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 40px;
+        }
+        .logo-wrap { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-img  { height: 40px; width: auto; object-fit: contain; }
+        .logo-text { font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #fff; }
+        .back-link {
+            color: rgba(255,255,255,0.5); text-decoration: none;
+            font-size: 13px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+            display: flex; align-items: center; gap: 8px; transition: var(--transition);
+        }
+        .back-link:hover { color: var(--primary); }
+
+        /* Content */
+        .page-wrap {
+            max-width: 860px; margin: 0 auto;
+            padding: 140px 40px 100px;
+        }
+        .page-title {
+            font-size: clamp(32px, 6vw, 52px);
+            font-weight: 800; letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #fff 50%, var(--primary) 100%);
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+        }
+        .page-meta {
+            font-size: 13px; color: rgba(255,255,255,0.3);
+            letter-spacing: 1px; text-transform: uppercase;
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section { margin-bottom: 48px; }
+        .section h2 {
+            font-size: 20px; font-weight: 800;
+            color: var(--primary); letter-spacing: 1px;
+            text-transform: uppercase; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .section h2::before {
+            content: ''; display: block;
+            width: 4px; height: 20px;
+            background: linear-gradient(180deg, var(--primary), var(--secondary));
+            border-radius: 4px;
+        }
+        .section p {
+            font-size: 15px; color: rgba(255,255,255,0.6);
+            font-weight: 300; margin-bottom: 12px;
+        }
+        .section ul {
+            list-style: none; padding: 0;
+        }
+        .section ul li {
+            font-size: 15px; color: rgba(255,255,255,0.6);
+            font-weight: 300; padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            display: flex; align-items: flex-start; gap: 10px;
+        }
+        .section ul li::before {
+            content: '→'; color: var(--primary);
+            font-size: 13px; margin-top: 2px; flex-shrink: 0;
+        }
+
+        .highlight-box {
+            background: rgba(0,242,254,0.04);
+            border: 1px solid rgba(0,242,254,0.15);
+            border-radius: 12px; padding: 24px 28px;
+            margin-top: 16px;
+        }
+        .highlight-box p { margin: 0; color: rgba(255,255,255,0.7); }
+
+        .contact-box {
+            background: rgba(15,23,42,0.6);
+            border: 1px solid var(--border);
+            border-radius: 16px; padding: 32px;
+            margin-top: 16px; display: flex; align-items: center; gap: 20px;
+        }
+        .contact-box a {
+            color: var(--primary); text-decoration: none; font-weight: 700;
+            font-size: 16px; transition: var(--transition);
+        }
+        .contact-box a:hover { text-shadow: 0 0 20px var(--primary-glow); }
+
+        /* Footer */
+        footer {
+            text-align: center; padding: 40px 20px;
+            border-top: 1px solid var(--border);
+            font-size: 12px; color: rgba(255,255,255,0.2);
+        }
+        footer a { color: var(--primary); text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <div class="master-bg"></div>
+    <div class="master-overlay"></div>
+
+    <header>
+        <div class="nav-inner">
+            <a href="index.html" class="logo-wrap">
+                <img src="pfc logo.png" alt="PFC Logo" class="logo-img">
+                <span class="logo-text">PFC GAMES</span>
+            </a>
+            <a href="index.html" class="back-link">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                Back to Home
+            </a>
+        </div>
+    </header>
+
+    <div class="page-wrap">
+
+        <h1 class="page-title">Privacy Policy</h1>
+        <p class="page-meta">Last Updated: January 2026 &nbsp;·&nbsp; PFC Games Studio</p>
+
+        <div class="section">
+            <h2>Overview</h2>
+            <p>PFC Games ("we", "our", "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard information when you use our games and website, including <strong>Car Racing Robot Transform</strong>.</p>
+            <div class="highlight-box">
+                <p>We do not sell your personal data to any third party. Your privacy is our priority.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Information We Collect</h2>
+            <p>We may collect the following types of information:</p>
+            <ul>
+                <li>Device information (model, OS version, unique device identifiers)</li>
+                <li>Gameplay data (scores, progress, session duration)</li>
+                <li>Crash reports and performance diagnostics</li>
+                <li>Advertising ID for serving relevant ads</li>
+                <li>IP address and general location (country/region level only)</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>How We Use Your Information</h2>
+            <ul>
+                <li>To operate and improve our games and services</li>
+                <li>To display relevant advertisements via Google AdMob / AdSense</li>
+                <li>To analyze gameplay and fix bugs</li>
+                <li>To maintain leaderboards and game progress</li>
+                <li>To respond to support requests</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Advertising</h2>
+            <p>Our games and website use <strong>Google AdMob</strong> and <strong>Google AdSense</strong> to display ads. These services may collect and use data to show personalized advertisements.</p>
+            <ul>
+                <li>Google may use cookies and device identifiers to serve ads</li>
+                <li>You can opt out of personalized ads via your device settings</li>
+                <li>For more info visit: <a href="https://policies.google.com/privacy" target="_blank" style="color: var(--primary);">policies.google.com/privacy</a></li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Children's Privacy</h2>
+            <p>Our games are designed for general audiences. We do not knowingly collect personal information from children under 13. If you believe a child has provided us personal data, please contact us immediately and we will delete it.</p>
+        </div>
+
+        <div class="section">
+            <h2>Data Storage & Security</h2>
+            <p>We implement industry-standard security measures to protect your data. Game progress may be stored locally on your device or via Google Play Games Services. We do not store sensitive personal information on our servers.</p>
+        </div>
+
+        <div class="section">
+            <h2>Third-Party Services</h2>
+            <p>Our app may include links or integrations with third-party services:</p>
+            <ul>
+                <li>Google Play Games Services</li>
+                <li>Google AdMob (in-app advertising)</li>
+                <li>Google AdSense (website advertising)</li>
+                <li>Google Analytics (usage statistics)</li>
+            </ul>
+            <p style="margin-top:12px;">Each third-party service has its own privacy policy. We encourage you to review them.</p>
+        </div>
+
+        <div class="section">
+            <h2>Your Rights</h2>
+            <ul>
+                <li>Request access to the data we hold about you</li>
+                <li>Request deletion of your personal data</li>
+                <li>Opt out of personalized advertising</li>
+                <li>Withdraw consent at any time</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Changes to This Policy</h2>
+            <p>We may update this Privacy Policy from time to time. Any changes will be posted on this page with an updated date. Continued use of our services after changes means you accept the updated policy.</p>
+        </div>
+
+        <div class="section">
+            <h2>Contact Us</h2>
+            <p>If you have any questions or concerns about this Privacy Policy, contact us:</p>
+            <div class="contact-box">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00f2fe" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                <a href="mailto:support.pfcgames@gmail.com">support.pfcgames@gmail.com</a>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>© 2026 PFC Games Studio. All rights reserved. &nbsp;·&nbsp; <a href="index.html">Home</a> &nbsp;·&nbsp; <a href="mailto:support.pfcgames@gmail.com">Contact</a></p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="./">
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Car Race Game">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png"/>
+  <title>Car Race Game - Robot Edition</title>
+  <link rel="manifest" href="manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&display=swap" rel="stylesheet">
+
+  <!-- AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6114394956903500" crossorigin="anonymous"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #020617; font-family: 'Outfit', sans-serif; overflow: hidden; }
+
+    /* Hide Flutter canvas until ready */
+    flt-glass-pane { opacity: 0; transition: opacity 0.5s ease; }
+    flt-glass-pane.visible { opacity: 1; }
+
+    /* ── Back button ── */
+    #back-btn {
+      position: fixed; top: 16px; left: 16px; z-index: 999999;
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 9px 16px;
+      background: rgba(2,6,23,0.85); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px; color: #fff; text-decoration: none;
+      font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      backdrop-filter: blur(10px); transition: all 0.3s ease;
+    }
+    #back-btn:hover { border-color: rgba(0,242,254,0.5); color: #00f2fe; }
+
+
+
+    /* ── Top banner ad ── */
+    #top-ad {
+      position: fixed; bottom: 0; left: 0; width: 100%;
+      z-index: 99997; background: #010208;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      display: none;
+    }
+
+    /* ── Game Revival Popup ── */
+    #revival-popup {
+      position: fixed; inset: 0; z-index: 999998;
+      background: rgba(2,6,23,0.92); backdrop-filter: blur(8px);
+      display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+    }
+    #revival-popup.show { display: flex; }
+    #revival-popup h2 { font-size: 28px; color: #fff; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+    #revival-popup p  { font-size: 14px; color: rgba(255,255,255,0.4); }
+    .revival-ad-wrap { width: min(500px, 90vw); background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; overflow: hidden; }
+    .revival-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 14px 32px; border-radius: 10px; border: none;
+      font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 800;
+      letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease;
+    }
+    .btn-watch { background: linear-gradient(135deg, #00f2fe, #7000ff); color: #020617; }
+    .btn-watch:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,242,254,0.3); }
+    .btn-skip  { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.1); }
+    .btn-skip:hover { background: rgba(255,0,0,0.1); color: #fff; border-color: rgba(255,0,0,0.3); }
+    .revival-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+
+    /* ── Keys popup ── */
+    #keys-popup {
+      position: fixed; inset: 0; z-index: 999998;
+      background: rgba(2,6,23,0.92); backdrop-filter: blur(8px);
+      display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+    }
+    #keys-popup.show { display: flex; }
+    #keys-popup h2 { font-size: 24px; color: #fff; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+    #keys-popup p  { font-size: 14px; color: rgba(255,255,255,0.4); }
+
+    /* ── Splash ── */
+    #splash {
+      position: fixed; inset: 0; z-index: 999999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: radial-gradient(ellipse at 50% 0%, rgba(0,242,254,0.1) 0%, #020617 65%);
+      transition: opacity 0.6s ease;
+    }
+    #splash.hide { opacity: 0; pointer-events: none; }
+    .s-icon {
+      width: 140px; height: auto; object-fit: contain;
+      filter: drop-shadow(0 0 20px rgba(0,242,254,0.4));
+      margin-bottom: 18px; animation: glow 2s ease-in-out infinite;
+    }
+    .s-title { font-size: 20px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: #fff; margin-bottom: 4px; }
+    .s-sub   { font-size: 12px; color: rgba(255,255,255,0.3); letter-spacing: 1px; margin-bottom: 32px; }
+    .bar-wrap { width: 220px; height: 3px; background: rgba(255,255,255,0.07); border-radius: 4px; overflow: hidden; }
+    .bar { height: 100%; width: 0%; background: linear-gradient(90deg, #00f2fe, #7000ff); border-radius: 4px; animation: grow 8s ease forwards; }
+
+    @keyframes glow {
+      0%,100% { filter: drop-shadow(0 0 20px rgba(0,242,254,0.4)); transform: scale(1); }
+      50%      { filter: drop-shadow(0 0 8px rgba(0,242,254,0.1));  transform: scale(0.97); }
+    }
+    @keyframes grow {
+      0%  { width: 0% }
+      50% { width: 70% }
+      90% { width: 90% }
+      100%{ width: 95% }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Back to website -->
+  <a id="back-btn" href="../" target="_self">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    PFC Games
+  </a>
+
+  <!-- Game Revival Popup -->
+  <div id="revival-popup">
+    <h2>💀 Game Over</h2>
+    <p>Watch an ad to continue your run</p>
+    <div class="revival-ad-wrap">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-6114394956903500"
+           data-ad-slot="3567454961"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+    </div>
+    <div class="revival-actions">
+      <button class="revival-btn btn-watch" onclick="revivePlayer()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Watch Ad & Continue
+      </button>
+      <button class="revival-btn btn-skip" onclick="closeRevival()">Skip</button>
+    </div>
+  </div>
+
+  <!-- Watch Ad for Keys Popup -->
+  <div id="keys-popup">
+    <h2>🔑 Get Keys</h2>
+    <p>Watch an ad to earn free keys</p>
+    <div class="revival-ad-wrap">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-6114394956903500"
+           data-ad-slot="3567454961"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+    </div>
+    <div class="revival-actions">
+      <button class="revival-btn btn-watch" onclick="giveKeys()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Watch Ad & Get Keys
+      </button>
+      <button class="revival-btn btn-skip" onclick="closeKeys()">No Thanks</button>
+    </div>
+  </div>
+
+  <!-- Bottom banner ad (shown after game loads) -->
+  <div id="top-ad">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-6114394956903500"
+         data-ad-slot="5119277572"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </div>
+
+  <!-- Splash screen -->
+  <div id="splash">
+    <img class="s-icon" src="pfc-logo.png" alt="PFC Games">
+    <div class="s-title">Car Racing</div>
+    <div class="s-sub">Robot Transform Edition</div>
+    <div class="bar-wrap"><div class="bar" id="bar"></div></div>
+  </div>
+
+  <script>
+    // ── Splash dismiss ──
+    window.addEventListener('flutter-first-frame', function () {
+      var bar = document.getElementById('bar');
+      bar.style.transition = 'width 0.3s ease';
+      bar.style.width = '100%';
+      setTimeout(function () {
+        var splash = document.getElementById('splash');
+        splash.classList.add('hide');
+        var pane = document.querySelector('flt-glass-pane');
+        if (pane) pane.classList.add('visible');
+        setTimeout(function () {
+          splash.remove();
+          // Show pause hint & bottom ad after game loads
+var adWrap = document.getElementById('top-ad');
+          adWrap.style.display = 'block';
+          (adsbygoogle = window.adsbygoogle || []).push({});
+        }, 700);
+      }, 500);
+    });
+
+    // ── Revival popup ──
+    function showRevival() {
+      document.getElementById('revival-popup').classList.add('show');
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    }
+    function revivePlayer() {
+      document.getElementById('revival-popup').classList.remove('show');
+      // notify Flutter game to revive player
+      if (window._flutter && window._flutter.revive) window._flutter.revive();
+    }
+    function closeRevival() {
+      document.getElementById('revival-popup').classList.remove('show');
+    }
+
+    // ── Keys popup ──
+    function showKeys() {
+      document.getElementById('keys-popup').classList.add('show');
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    }
+    function giveKeys() {
+      document.getElementById('keys-popup').classList.remove('show');
+      if (window._flutter && window._flutter.giveKeys) window._flutter.giveKeys();
+    }
+    function closeKeys() {
+      document.getElementById('keys-popup').classList.remove('show');
+    }
+  </script>
+  <script src="flutter_bootstrap.js" async></script>
+
+</body>
+</html>

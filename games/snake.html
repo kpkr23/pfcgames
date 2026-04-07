@@ -84,7 +84,7 @@
         overflow:hidden;
         box-shadow:0 0 0 1px rgba(0,242,254,0.15), 0 20px 60px rgba(0,0,0,0.5);
       }
-      canvas { display:block; max-width:min(400px,95vw); max-height:min(400px,45vh); }
+      canvas { display:block; max-width:min(350px,90vw); max-height:min(350px,35vh); }
 
       /* Progress bar */
       .progress-wrap {
@@ -162,8 +162,29 @@
         border:none; border-radius:8px;
         color:#020617; font-weight:800; font-size:14px;
         cursor:pointer; transition:all 0.2s ease;
+        min-height:44px; /* Minimum touch target */
       }
       .overlay-btn:hover { transform:translateY(-2px); }
+
+      /* Mobile optimizations */
+      @media (max-width: 480px) {
+        .overlay-btn {
+          padding:16px 32px;
+          font-size:16px;
+          min-width:140px;
+          font-weight:900;
+        }
+        .overlay-content {
+          padding:24px;
+          max-width:320px;
+        }
+        .overlay-title {
+          font-size:28px;
+        }
+        .overlay-text {
+          font-size:14px;
+        }
+      }
 
       /* Pause indicator */
       .pause-ind {

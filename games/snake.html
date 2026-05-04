@@ -1,636 +1,309 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <title>Neon Snake – PFC Games</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-    <style>
-      * { margin:0; padding:0; box-sizing:border-box; }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Neon Snake – PFC Games</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#020617; font-family:'Outfit',sans-serif; color:#fff; min-height:100vh; overflow:hidden; touch-action:none; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+    .bg { position:fixed; inset:0; z-index:-1; background:radial-gradient(ellipse at 20% 50%,rgba(112,0,255,0.08) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(0,242,254,0.06) 0%,transparent 60%); }
+    .game-header { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:12px 20px; background:rgba(2,6,23,0.9); border-bottom:1px solid rgba(255,255,255,0.06); backdrop-filter:blur(20px); }
+    .brand { display:flex; align-items:center; gap:10px; text-decoration:none; }
+    .brand img { height:32px; width:auto; object-fit:contain; filter:drop-shadow(0 0 8px rgba(0,242,254,0.3)); }
+    .brand-text { font-size:13px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:#fff; }
+    .back-btn { display:inline-flex; align-items:center; gap:6px; padding:7px 14px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:rgba(255,255,255,0.6); text-decoration:none; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; transition:all 0.3s ease; }
+    .back-btn:hover { border-color:rgba(0,242,254,0.4); color:#00f2fe; }
+    .game-title { margin-top:70px; font-size:clamp(16px,4vw,24px); font-weight:800; letter-spacing:3px; text-transform:uppercase; background:linear-gradient(135deg,#fff 40%,#00f2fe 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:4px; text-align:center; }
+    .stats { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; margin-bottom:6px; }
+    .stat-box { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:5px 12px; display:flex; flex-direction:column; align-items:center; gap:1px; }
+    .stat-label { font-size:9px; color:rgba(255,255,255,0.3); letter-spacing:1.5px; text-transform:uppercase; }
+    .stat-value { font-size:15px; font-weight:800; color:#00f2fe; }
+    .progress-wrap { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:5px 14px; display:flex; flex-direction:column; align-items:center; gap:4px; margin-bottom:6px; }
+    .progress-label { font-size:9px; color:rgba(255,255,255,0.3); letter-spacing:1.5px; text-transform:uppercase; }
+    .progress-bar { width:120px; height:4px; background:rgba(255,255,255,0.1); border-radius:2px; overflow:hidden; }
+    .progress-fill { height:100%; background:linear-gradient(90deg,#00f2fe,#7000ff); transition:width 0.5s ease; }
+    .canvas-wrap { position:relative; border-radius:16px; overflow:hidden; box-shadow:0 0 0 1px rgba(0,242,254,0.15),0 20px 60px rgba(0,0,0,0.5); }
+    canvas { display:block; }
+    #msg { margin-top:6px; font-size:12px; color:rgba(255,255,255,0.3); letter-spacing:1px; text-align:center; min-height:18px; }
+    #msg b { color:#00f2fe; }
+    /* Big D-pad */
+    #dpad { display:grid; grid-template-columns:repeat(3,72px); grid-template-rows:repeat(3,72px); gap:6px; margin-top:10px; }
+    .dpad-btn { display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:12px; color:#fff; font-size:26px; cursor:pointer; user-select:none; -webkit-tap-highlight-color:transparent; transition:all 0.1s ease; }
+    .dpad-btn:active { background:rgba(0,242,254,0.2); border-color:rgba(0,242,254,0.5); transform:scale(0.93); }
+    .dpad-center { background:linear-gradient(135deg,rgba(0,242,254,0.15),rgba(112,0,255,0.15)); border-color:rgba(0,242,254,0.3); font-size:20px; }
+    .dpad-empty { background:transparent; border:none; pointer-events:none; }
+    .overlay { position:fixed; inset:0; z-index:200; background:rgba(2,6,23,0.95); backdrop-filter:blur(20px); display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.3s ease; }
+    .overlay.show { opacity:1; pointer-events:auto; }
+    .overlay-content { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:28px 24px; text-align:center; max-width:300px; width:90vw; }
+    .overlay-title { font-size:22px; font-weight:800; margin-bottom:12px; color:#00f2fe; }
+    .overlay-text { color:rgba(255,255,255,0.6); margin-bottom:20px; font-size:14px; line-height:1.5; }
+    .overlay-btn { padding:14px 24px; background:linear-gradient(135deg,#00f2fe,#7000ff); border:none; border-radius:10px; color:#020617; font-weight:800; font-size:14px; cursor:pointer; min-height:50px; min-width:130px; margin:4px; }
+    .overlay-btn.ghost { background:rgba(255,255,255,0.08); color:#fff; }
+    .btn-row { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:8px; }
+    .game-footer { position:fixed; bottom:0; left:0; right:0; text-align:center; padding:5px; font-size:10px; color:rgba(255,255,255,0.1); letter-spacing:1px; text-transform:uppercase; }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="game-header">
+    <a class="brand" href="../index.html">
+      <img src="../pfc logo.png" alt="PFC Games">
+      <span class="brand-text">PFC Games</span>
+    </a>
+    <a class="back-btn" href="../index.html">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      Home
+    </a>
+  </div>
 
-      body {
-        background:#020617;
-        font-family:'Outfit',sans-serif;
-        color:#fff;
-        min-height:100vh;
-        overflow:hidden;
-        touch-action:none;
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        justify-content:center;
-      }
+  <div class="game-title">🐍 Neon Snake</div>
+  <div class="stats">
+    <div class="stat-box"><span class="stat-label">Score</span><span class="stat-value" id="score-val">0</span></div>
+    <div class="stat-box"><span class="stat-label">Best</span><span class="stat-value" id="best-val">0</span></div>
+    <div class="stat-box"><span class="stat-label">Level</span><span class="stat-value" id="level-val">1</span></div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-label">Progress to next level</div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+  <div class="canvas-wrap">
+    <canvas id="game-canvas"></canvas>
+  </div>
+  <div id="msg"></div>
+  <div id="dpad">
+    <div class="dpad-empty dpad-btn"></div>
+    <button class="dpad-btn" id="btn-up">↑</button>
+    <div class="dpad-empty dpad-btn"></div>
+    <button class="dpad-btn" id="btn-left">←</button>
+    <button class="dpad-btn dpad-center" id="btn-center">⏸</button>
+    <button class="dpad-btn" id="btn-right">→</button>
+    <div class="dpad-empty dpad-btn"></div>
+    <button class="dpad-btn" id="btn-down">↓</button>
+    <div class="dpad-empty dpad-btn"></div>
+  </div>
 
-      /* Animated background */
-      .bg {
-        position:fixed; inset:0; z-index:-1;
-        background: radial-gradient(ellipse at 20% 50%, rgba(112,0,255,0.08) 0%, transparent 60%),
-                    radial-gradient(ellipse at 80% 20%, rgba(0,242,254,0.06) 0%, transparent 60%);
-      }
+  <div class="overlay" id="overlay">
+    <div class="overlay-content" id="overlay-content"></div>
+  </div>
+  <div class="game-footer">© PFC Games Studio · All Rights Reserved</div>
 
-      /* Header */
-      .game-header {
-        position:fixed; top:0; left:0; right:0; z-index:100;
-        display:flex; align-items:center; justify-content:space-between;
-        padding:12px 20px;
-        background:rgba(2,6,23,0.9);
-        border-bottom:1px solid rgba(255,255,255,0.06);
-        backdrop-filter:blur(20px);
-      }
-      .brand { display:flex; align-items:center; gap:10px; text-decoration:none; }
-      .brand img { height:32px; width:auto; object-fit:contain; filter:drop-shadow(0 0 8px rgba(0,242,254,0.3)); }
-      .brand-text { font-size:13px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:#fff; }
-      .back-btn {
-        display:inline-flex; align-items:center; gap:6px;
-        padding:7px 14px;
-        background:rgba(255,255,255,0.05);
-        border:1px solid rgba(255,255,255,0.1);
-        border-radius:8px; color:rgba(255,255,255,0.6);
-        text-decoration:none; font-size:11px; font-weight:700;
-        letter-spacing:1px; text-transform:uppercase;
-        transition:all 0.3s ease;
-      }
-      .back-btn:hover { border-color:rgba(0,242,254,0.4); color:#00f2fe; }
+<script>
+  const GRID = 20;
+  const THEMES = [
+    { primary:'#00f2fe', secondary:'#7000ff', accent:'#f43f5e' },
+    { primary:'#4ade80', secondary:'#22c55e', accent:'#facc15' },
+    { primary:'#c084fc', secondary:'#a855f7', accent:'#00f2fe' },
+    { primary:'#fbbf24', secondary:'#f59e0b', accent:'#ffffff' },
+    { primary:'#f87171', secondary:'#ef4444', accent:'#facc15' },
+  ];
+  const LEVELS = [
+    {speed:160,need:5},{speed:140,need:7},{speed:120,need:9},{speed:100,need:11},
+    {speed:88,need:13},{speed:76,need:15},{speed:64,need:17},{speed:54,need:19},
+    {speed:44,need:21},{speed:34,need:25}
+  ];
 
-      /* Game title */
-      .game-title {
-        margin-top:70px;
-        font-size:clamp(18px,4vw,26px);
-        font-weight:800; letter-spacing:3px; text-transform:uppercase;
-        background:linear-gradient(135deg,#fff 40%,#00f2fe 100%);
-        -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
-        margin-bottom:4px; text-align:center;
-      }
+  const canvas = document.getElementById('game-canvas');
+  const ctx = canvas.getContext('2d');
 
-      /* Stats bar */
-      .stats {
-        display:flex; gap:6px; flex-wrap:wrap; justify-content:center;
-        margin-bottom:10px;
-      }
-      .stat-box {
-        background:rgba(255,255,255,0.04);
-        border:1px solid rgba(255,255,255,0.08);
-        border-radius:8px; padding:6px 14px;
-        display:flex; flex-direction:column; align-items:center; gap:1px;
-      }
-      .stat-label { font-size:9px; color:rgba(255,255,255,0.3); letter-spacing:1.5px; text-transform:uppercase; }
-      .stat-value { font-size:16px; font-weight:800; color:#00f2fe; }
+  // Responsive canvas
+  function setCanvasSize() {
+    const size = Math.min(window.innerWidth - 16, 340, window.innerHeight * 0.32);
+    canvas.width = size; canvas.height = size;
+  }
+  setCanvasSize();
+  window.addEventListener('resize', setCanvasSize);
 
-      /* Canvas wrapper */
-      .canvas-wrap {
-        position:relative;
-        border-radius:16px;
-        overflow:hidden;
-        box-shadow:0 0 0 1px rgba(0,242,254,0.15), 0 20px 60px rgba(0,0,0,0.5);
-      }
-      canvas { display:block; max-width:min(350px,90vw); max-height:min(350px,35vh); }
+  let snake, dir, nextDir, food, score, bestScore, level, foodEaten, gameState, particles, lastTick, theme;
+  bestScore = parseInt(localStorage.getItem('neon-snake-best') || '0');
 
-      /* Progress bar */
-      .progress-wrap {
-        background:rgba(255,255,255,0.04);
-        border:1px solid rgba(255,255,255,0.08);
-        border-radius:8px; padding:6px 14px;
-        display:flex; flex-direction:column; align-items:center; gap:4px;
-        margin-bottom:10px;
-      }
-      .progress-label { font-size:9px; color:rgba(255,255,255,0.3); letter-spacing:1.5px; text-transform:uppercase; }
-      .progress-bar {
-        width:120px; height:4px;
-        background:rgba(255,255,255,0.1);
-        border-radius:2px; overflow:hidden;
-      }
-      .progress-fill {
-        height:100%;
-        background:linear-gradient(90deg,#00f2fe,#7000ff);
-        transition:width 0.5s ease;
-      }
+  class Particle {
+    constructor(x, y, color) {
+      this.x = x; this.y = y; this.color = color;
+      this.size = Math.random() * 3 + 1;
+      this.vx = (Math.random() - 0.5) * 8; this.vy = (Math.random() - 0.5) * 8;
+      this.life = 1; this.decay = Math.random() * 0.05 + 0.02;
+    }
+    update() { this.x += this.vx; this.y += this.vy; this.life -= this.decay; this.vx *= 0.95; this.vy *= 0.95; }
+    draw() { ctx.globalAlpha = this.life; ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1; }
+  }
 
-      /* Message */
-      #msg {
-        margin-top:8px; font-size:12px;
-        color:rgba(255,255,255,0.3); letter-spacing:1px; text-align:center;
-      }
-      #msg b { color:#00f2fe; }
+  function placeFood() {
+    let f;
+    do { f = { x: Math.floor(Math.random() * GRID), y: Math.floor(Math.random() * GRID) }; }
+    while (snake.some(s => s.x === f.x && s.y === f.y));
+    food = f;
+  }
 
-      /* D-pad */
-      #dpad {
-        display:grid;
-        grid-template-columns:repeat(3,52px);
-        grid-template-rows:repeat(3,52px);
-        gap:5px; margin-top:10px;
-      }
-      .dpad-btn {
-        display:flex; align-items:center; justify-content:center;
-        background:rgba(255,255,255,0.05);
-        border:1px solid rgba(255,255,255,0.1);
-        border-radius:8px; color:#fff;
-        font-size:18px; cursor:pointer;
-        transition:all 0.2s ease;
-      }
-      .dpad-btn:hover { background:rgba(255,255,255,0.1); border-color:rgba(0,242,254,0.3); }
-      .dpad-btn:active { transform:scale(0.95); }
-      .dpad-center {
-        background:linear-gradient(135deg,#00f2fe,#7000ff);
-        border-color:#00f2fe;
-      }
+  function updateUI() {
+    document.getElementById('score-val').textContent = score;
+    document.getElementById('best-val').textContent = bestScore;
+    document.getElementById('level-val').textContent = level;
+    document.getElementById('progress-fill').style.width = `${(foodEaten / LEVELS[level - 1].need) * 100}%`;
+    const msg = document.getElementById('msg');
+    if (gameState === 'PLAYING') msg.innerHTML = 'Use D-pad or swipe to move';
+    else if (gameState === 'PAUSED') msg.innerHTML = '<b>PAUSED</b>';
+    else msg.innerHTML = '';
+  }
 
-      /* Overlay */
-      .overlay {
-        position:fixed; inset:0; z-index:200;
-        background:rgba(2,6,23,0.95);
-        backdrop-filter:blur(20px);
-        display:flex; align-items:center; justify-content:center;
-        opacity:0; pointer-events:none;
-        transition:opacity 0.3s ease;
-      }
-      .overlay.show { opacity:1; pointer-events:auto; }
-      .overlay-content {
-        background:rgba(255,255,255,0.05);
-        border:1px solid rgba(255,255,255,0.1);
-        border-radius:16px; padding:32px;
-        text-align:center; max-width:300px;
-        transform:scale(0.9); opacity:0;
-        transition:all 0.3s ease;
-      }
-      .overlay.show .overlay-content { transform:scale(1); opacity:1; }
-      .overlay-title { font-size:24px; font-weight:800; margin-bottom:16px; color:#00f2fe; }
-      .overlay-text { color:rgba(255,255,255,0.6); margin-bottom:24px; }
-      .overlay-btn {
-        padding:12px 24px;
-        background:linear-gradient(135deg,#00f2fe,#7000ff);
-        border:none; border-radius:8px;
-        color:#020617; font-weight:800; font-size:14px;
-        cursor:pointer; transition:all 0.2s ease;
-        min-height:44px; /* Minimum touch target */
-      }
-      .overlay-btn:hover { transform:translateY(-2px); }
+  function explosion(x, y) {
+    const cs = canvas.width / GRID;
+    for (let i = 0; i < 12; i++) particles.push(new Particle(x * cs + cs / 2, y * cs + cs / 2, theme.accent));
+  }
 
-      /* Mobile optimizations */
-      @media (max-width: 480px) {
-        .overlay-btn {
-          padding:16px 32px;
-          font-size:16px;
-          min-width:140px;
-          font-weight:900;
-        }
-        .overlay-content {
-          padding:24px;
-          max-width:320px;
-        }
-        .overlay-title {
-          font-size:28px;
-        }
-        .overlay-text {
-          font-size:14px;
-        }
-      }
+  function showOverlay(type) {
+    const el = document.getElementById('overlay');
+    const content = document.getElementById('overlay-content');
+    el.classList.add('show');
+    let html = '';
+    if (type === 'IDLE') {
+      html = `<div class="overlay-title">🐍 NEON SNAKE</div>
+        <div class="overlay-text">Eat food, grow longer, avoid walls and yourself!</div>
+        <button id="ov-start" class="overlay-btn">START GAME</button>`;
+    } else if (type === 'LEVEL_UP') {
+      html = `<div class="overlay-title">LEVEL ${level}!</div>
+        <div class="overlay-text">Great job! Ready for the next challenge?</div>
+        <button id="ov-next" class="overlay-btn">NEXT LEVEL ▶</button>`;
+    } else if (type === 'GAME_OVER') {
+      html = `<div class="overlay-title">GAME OVER</div>
+        <div class="overlay-text">Score: <b style="color:#00f2fe">${score}</b><br>Best: ${bestScore}</div>
+        <button id="ov-restart" class="overlay-btn">PLAY AGAIN</button>
+        <div class="btn-row"><button id="ov-home" class="overlay-btn ghost">HOME</button></div>`;
+    } else if (type === 'PAUSED') {
+      html = `<div class="overlay-title">PAUSED</div>
+        <div class="btn-row">
+          <button id="ov-resume" class="overlay-btn">RESUME</button>
+          <button id="ov-restart" class="overlay-btn ghost">RESTART</button>
+        </div>
+        <div class="btn-row"><button id="ov-home" class="overlay-btn ghost">HOME</button></div>`;
+    }
+    content.innerHTML = html;
+    document.getElementById('ov-start')?.addEventListener('click', startGame);
+    document.getElementById('ov-next')?.addEventListener('click', nextLevel);
+    document.getElementById('ov-restart')?.addEventListener('click', startGame);
+    document.getElementById('ov-resume')?.addEventListener('click', () => { gameState = 'PLAYING'; el.classList.remove('show'); updateUI(); });
+    document.getElementById('ov-home')?.addEventListener('click', () => location.href = '../index.html');
+  }
 
-      /* Pause indicator */
-      .pause-ind {
-        position:absolute; top:10px; right:10px;
-        background:rgba(2,6,23,0.9);
-        border:1px solid rgba(255,255,255,0.1);
-        border-radius:8px; padding:4px 8px;
-        font-size:10px; color:#00f2fe;
-        display:none;
-      }
+  function hideOverlay() { document.getElementById('overlay').classList.remove('show'); }
 
-      /* Footer */
-      .game-footer {
-        margin-top:40px;
-        padding:20px;
-        text-align:center;
-        background:rgba(2,6,23,0.5);
-        border-top:1px solid rgba(255,255,255,0.06);
-        backdrop-filter:blur(10px);
-      }
-      .footer-title {
-        font-size:16px; font-weight:800; margin-bottom:20px;
-        color:#00f2fe; letter-spacing:2px; text-transform:uppercase;
-      }
+  function startGame() {
+    snake = [{ x:10,y:10 },{ x:9,y:10 },{ x:8,y:10 }];
+    dir = { x:1,y:0 }; nextDir = { x:1,y:0 };
+    score = 0; level = 1; foodEaten = 0;
+    theme = THEMES[0]; gameState = 'PLAYING'; particles = []; lastTick = 0;
+    hideOverlay(); placeFood(); updateUI();
+  }
 
-      /* Mini Games Grid */
-      .mini-grid {
-        display:grid;
-        grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-        gap:16px; max-width:800px; margin:0 auto;
-      }
-      .mini-card {
-        background:rgba(255,255,255,0.04);
-        backdrop-filter:blur(20px);
-        border:1px solid rgba(255,255,255,0.08);
-        border-radius:12px;
-        padding:20px;
-        display:flex;
-        align-items:center;
-        gap:16px;
-        text-decoration:none;
-        color:#fff;
-        transition:all 0.3s ease;
-        position:relative;
-        overflow:hidden;
-      }
-      .mini-card::before {
-        content:'';
-        position:absolute;
-        inset:0;
-        background:linear-gradient(135deg,rgba(0,242,254,0.04),rgba(112,0,255,0.04));
-        opacity:0;
-        transition:opacity 0.3s ease;
-      }
-      .mini-card:hover {
-        border-color:#00f2fe;
-        transform:translateY(-4px);
-      }
-      .mini-card:hover::before { opacity:1; }
-      .mini-icon { font-size:32px; flex-shrink:0; }
-      .mini-info { flex:1; }
-      .mini-info h3 { font-size:16px; font-weight:800; margin-bottom:4px; }
-      .mini-info p { font-size:12px; color:rgba(255,255,255,0.5); }
-      .mini-play {
-        display:inline-flex; align-items:center; gap:6px;
-        font-size:11px; font-weight:800; text-transform:uppercase;
-        letter-spacing:1px; color:#00f2fe;
-        background:rgba(0,242,254,0.08);
-        border:1px solid rgba(0,242,254,0.2);
-        padding:6px 12px; border-radius:6px;
-        flex-shrink:0; transition:all 0.3s ease;
-      }
-      .mini-card:hover .mini-play { background:rgba(0,242,254,0.15); }
+  function nextLevel() {
+    if (level < LEVELS.length) {
+      level++; foodEaten = 0; theme = THEMES[(level - 1) % THEMES.length];
+      snake = [{ x:10,y:10 },{ x:9,y:10 },{ x:8,y:10 }];
+      dir = { x:1,y:0 }; nextDir = { x:1,y:0 };
+      gameState = 'PLAYING'; hideOverlay(); placeFood(); updateUI();
+    }
+  }
 
-      /* Powered by */
-      .powered-by {
-        margin-top:20px;
-        font-size:10px; color:rgba(255,255,255,0.3);
-        letter-spacing:1px; text-transform:uppercase;
-      }
-      .powered-by img { height:16px; width:auto; vertical-align:middle; margin-right:6px; }
-    </style>
-  </head>
-  <body>
-    <div class="bg"></div>
+  function tick() {
+    if (gameState !== 'PLAYING') return;
+    dir = { ...nextDir };
+    const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+    if (head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID || snake.some(s => s.x === head.x && s.y === head.y)) {
+      gameState = 'GAME_OVER';
+      showOverlay('GAME_OVER'); return;
+    }
+    snake.unshift(head);
+    if (head.x === food.x && head.y === food.y) {
+      score += level * 10; foodEaten++;
+      explosion(food.x, food.y);
+      if (score > bestScore) { bestScore = score; localStorage.setItem('neon-snake-best', bestScore); }
+      if (foodEaten >= LEVELS[level - 1].need) {
+        gameState = 'LEVEL_UP';
+        confetti({ particleCount:120, spread:70, origin:{ y:0.6 }, colors:[theme.primary, theme.secondary] });
+        showOverlay('LEVEL_UP');
+      } else { placeFood(); }
+    } else { snake.pop(); }
+    updateUI();
+  }
 
-    <header class="game-header">
-      <a href="../index.html" class="brand">
-        <img src="../pfc logo.png" alt="PFC Logo">
-        <span class="brand-text">PFC GAMES</span>
-      </a>
-      <a href="../index.html" class="back-btn">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-        </svg>
-        Back
-      </a>
-    </header>
+  function draw(time) {
+    requestAnimationFrame(draw);
+    const cs = canvas.width / GRID;
+    ctx.fillStyle = 'rgba(2,6,23,0.35)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    <div class="game-title">Neon Snake</div>
+    // Grid dots
+    ctx.fillStyle = 'rgba(255,255,255,0.025)';
+    for (let x = 0; x < GRID; x++) for (let y = 0; y < GRID; y++) {
+      ctx.beginPath(); ctx.arc(x * cs + cs / 2, y * cs + cs / 2, 1, 0, Math.PI * 2); ctx.fill();
+    }
 
-    <div class="stats">
-      <div class="stat-box">
-        <div class="stat-label">Score</div>
-        <div class="stat-value" id="score-val">0</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">Best</div>
-        <div class="stat-value" id="best-val">0</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">Level</div>
-        <div class="stat-value" id="level-val">1</div>
-      </div>
-    </div>
+    // Particles
+    particles = particles.filter(p => p.life > 0);
+    particles.forEach(p => { p.update(); p.draw(); });
 
-    <div class="progress-wrap">
-      <div class="progress-label">Progress</div>
-      <div class="progress-bar">
-        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
-      </div>
-    </div>
+    // Food
+    const pulse = Math.sin(time / 150) * 2;
+    ctx.shadowBlur = 18 + pulse; ctx.shadowColor = theme.accent;
+    ctx.fillStyle = theme.accent;
+    ctx.beginPath(); ctx.arc(food.x * cs + cs / 2, food.y * cs + cs / 2, cs / 2 - 3 + pulse / 2, 0, Math.PI * 2); ctx.fill();
 
-    <div class="canvas-wrap">
-      <canvas id="game-canvas" width="400" height="400"></canvas>
-      <div class="pause-ind" id="pause-ind">PAUSED</div>
-    </div>
+    // Snake
+    snake.forEach((s, i) => {
+      const isHead = i === 0;
+      ctx.shadowBlur = isHead ? 18 : 0; ctx.shadowColor = theme.primary;
+      const g = ctx.createLinearGradient(s.x * cs, s.y * cs, (s.x + 1) * cs, (s.y + 1) * cs);
+      g.addColorStop(0, isHead ? theme.primary : theme.secondary);
+      g.addColorStop(1, isHead ? theme.secondary : 'rgba(0,0,0,0.2)');
+      ctx.fillStyle = g;
+      const pad = isHead ? 1 : 2;
+      ctx.beginPath(); ctx.roundRect(s.x * cs + pad, s.y * cs + pad, cs - pad * 2, cs - pad * 2, 5); ctx.fill();
+    });
+    ctx.shadowBlur = 0;
 
-    <div id="msg"></div>
+    // Tick
+    const now = performance.now();
+    if (now - lastTick > LEVELS[level - 1].speed) { tick(); lastTick = now; }
+  }
 
-    <div id="dpad">
-      <div></div>
-      <button class="dpad-btn" id="btn-up">↑</button>
-      <div></div>
-      <button class="dpad-btn" id="btn-left">←</button>
-      <button class="dpad-btn dpad-center" id="btn-center">⏸</button>
-      <button class="dpad-btn" id="btn-right">→</button>
-      <div></div>
-      <button class="dpad-btn" id="btn-down">↓</button>
-      <div></div>
-    </div>
+  // Controls
+  function input(key) {
+    if (gameState === 'PLAYING') {
+      if (key === 'up' && dir.y === 0) nextDir = { x:0,y:-1 };
+      else if (key === 'down' && dir.y === 0) nextDir = { x:0,y:1 };
+      else if (key === 'left' && dir.x === 0) nextDir = { x:-1,y:0 };
+      else if (key === 'right' && dir.x === 0) nextDir = { x:1,y:0 };
+      else if (key === 'pause') { gameState = 'PAUSED'; showOverlay('PAUSED'); updateUI(); }
+    } else if (gameState === 'PAUSED' && key === 'pause') {
+      gameState = 'PLAYING'; hideOverlay(); updateUI();
+    }
+  }
 
-    <div class="overlay" id="overlay">
-      <div class="overlay-content" id="overlay-content"></div>
-    </div>
+  window.addEventListener('keydown', e => {
+    const map = { ArrowUp:'up', ArrowDown:'down', ArrowLeft:'left', ArrowRight:'right', ' ':'pause' };
+    if (map[e.key]) { e.preventDefault(); input(map[e.key]); }
+  });
 
-    <script type="module">
-      // --- Constants & Config ---
-      const GRID_SIZE = 20;
-      const INITIAL_SNAKE = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
-      const INITIAL_DIRECTION = { x: 1, y: 0 };
+  document.getElementById('btn-up').addEventListener('click', () => input('up'));
+  document.getElementById('btn-down').addEventListener('click', () => input('down'));
+  document.getElementById('btn-left').addEventListener('click', () => input('left'));
+  document.getElementById('btn-right').addEventListener('click', () => input('right'));
+  document.getElementById('btn-center').addEventListener('click', () => input('pause'));
 
-      const THEMES = [
-        { name: 'Cyber', primary: '#00f2fe', secondary: '#7000ff', accent: '#f43f5e' },
-        { name: 'Toxic', primary: '#4ade80', secondary: '#22c55e', accent: '#facc15' },
-        { name: 'Plasma', primary: '#c084fc', secondary: '#a855f7', accent: '#00f2fe' },
-        { name: 'Gold', primary: '#fbbf24', secondary: '#f59e0b', accent: '#ffffff' },
-        { name: 'Inferno', primary: '#f87171', secondary: '#ef4444', accent: '#facc15' },
-      ];
+  // Swipe on canvas
+  let swX = 0, swY = 0;
+  canvas.addEventListener('touchstart', e => { swX = e.touches[0].clientX; swY = e.touches[0].clientY; }, { passive: true });
+  canvas.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - swX, dy = e.changedTouches[0].clientY - swY;
+    if (Math.abs(dx) < 15 && Math.abs(dy) < 15) return;
+    if (Math.abs(dx) > Math.abs(dy)) input(dx > 0 ? 'right' : 'left');
+    else input(dy > 0 ? 'down' : 'up');
+  }, { passive: true });
 
-      const LEVELS = [
-        { speed: 150, need: 5 }, { speed: 130, need: 7 }, { speed: 110, need: 9 },
-        { speed: 95, need: 11 }, { speed: 85, need: 13 }, { speed: 75, need: 15 },
-        { speed: 65, need: 17 }, { speed: 55, need: 19 }, { speed: 45, need: 21 },
-        { speed: 35, need: 25 },
-      ];
-
-      // --- Particle System ---
-      class Particle {
-        constructor(x, y, color) {
-          this.x = x;
-          this.y = y;
-          this.color = color;
-          this.size = Math.random() * 3 + 1;
-          this.vx = (Math.random() - 0.5) * 10;
-          this.vy = (Math.random() - 0.5) * 10;
-          this.life = 1.0;
-          this.decay = Math.random() * 0.05 + 0.02;
-        }
-        update() {
-          this.x += this.vx;
-          this.y += this.vy;
-          this.life -= this.decay;
-          this.vx *= 0.95;
-          this.vy *= 0.95;
-        }
-        draw(ctx) {
-          ctx.globalAlpha = this.life;
-          ctx.fillStyle = this.color;
-          ctx.beginPath();
-          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.globalAlpha = 1;
-        }
-      }
-
-      // --- State ---
-      let snake = [...INITIAL_SNAKE];
-      let direction = { ...INITIAL_DIRECTION };
-      let nextDirection = { ...INITIAL_DIRECTION };
-      let food = { x: 15, y: 10 };
-      let score = 0;
-      let bestScore = parseInt(localStorage.getItem('neon-snake-best') || '0', 10);
-      let level = 1;
-      let foodEaten = 0;
-      let gameState = 'IDLE'; 
-      let isPaused = false;
-      let particles = [];
-      let lastTick = 0;
-      let currentTheme = THEMES[0];
-
-      // --- DOM Elements ---
-      const canvas = document.getElementById('game-canvas');
-      const ctx = canvas.getContext('2d');
-      const scoreEl = document.getElementById('score-val');
-      const bestScoreEl = document.getElementById('best-val');
-      const levelEl = document.getElementById('level-val');
-      const progressEl = document.getElementById('progress-fill');
-      const overlayEl = document.getElementById('overlay');
-      const overlayContentEl = document.getElementById('overlay-content');
-      const msgEl = document.getElementById('msg');
-      const pauseEl = document.getElementById('pause-ind');
-
-      // --- Functions ---
-      function getRandomPos() {
-        return { x: Math.floor(Math.random() * GRID_SIZE), y: Math.floor(Math.random() * GRID_SIZE) };
-      }
-
-      function placeFood() {
-        let newFood;
-        do { newFood = getRandomPos(); } 
-        while (snake.some(s => s.x === newFood.x && s.y === newFood.y));
-        food = newFood;
-      }
-
-      function updateUI() {
-        scoreEl.textContent = score;
-        bestScoreEl.textContent = bestScore;
-        levelEl.textContent = level;
-        progressEl.style.width = `${(foodEaten / LEVELS[level - 1].need) * 100}%`;
-        msgEl.innerHTML = gameState === 'PLAYING' ? 'Use arrow keys or D-pad to move' : gameState === 'PAUSED' ? '<b>PAUSED</b> - Press space or center to resume' : '';
-      }
-
-      function createExplosion(x, y, color) {
-        const cellSize = canvas.width / GRID_SIZE;
-        const px = x * cellSize + cellSize / 2;
-        const py = y * cellSize + cellSize / 2;
-        for (let i = 0; i < 15; i++) {
-          particles.push(new Particle(px, py, color));
-        }
-      }
-
-      function showOverlay(type) {
-        overlayEl.classList.add('show');
-        
-        let html = '';
-        if (type === 'IDLE') {
-          html = `
-            <div class="overlay-title">NEON SNAKE</div>
-            <div class="overlay-text">Eat food, grow longer, avoid walls and yourself. Reach level goals to advance!</div>
-            <button id="start-btn" class="overlay-btn">START GAME</button>`;
-        } else if (type === 'LEVEL_UP') {
-          html = `
-            <div class="overlay-title">LEVEL ${level} COMPLETE!</div>
-            <div class="overlay-text">Great job! Ready for the next challenge?</div>
-            <button id="next-btn" class="overlay-btn">NEXT LEVEL</button>`;
-        } else if (type === 'GAME_OVER') {
-          html = `
-            <div class="overlay-title">GAME OVER</div>
-            <div class="overlay-text">Score: ${score}<br>Best: ${bestScore}</div>
-            <button id="restart-btn" class="overlay-btn">PLAY AGAIN</button>
-            <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:12px;">
-              <button id="home-btn" class="overlay-btn" style="flex:1; background:rgba(255,255,255,0.1); color:#fff;">HOME</button>
-              <button id="explore-btn" class="overlay-btn" style="flex:1; background:rgba(255,255,255,0.1); color:#fff;">EXPLORE GAMES</button>
-            </div>`;
-        } else if (type === 'PAUSED') {
-          html = `
-            <div class="overlay-title">GAME PAUSED</div>
-            <div class="overlay-text">What would you like to do?</div>
-            <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
-              <button id="resume-btn" class="overlay-btn" style="flex:1;">RESUME</button>
-              <button id="restart-btn" class="overlay-btn" style="flex:1;">RESTART</button>
-            </div>
-            <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:12px;">
-              <button id="home-btn" class="overlay-btn" style="flex:1; background:rgba(255,255,255,0.1); color:#fff;">HOME</button>
-              <button id="explore-btn" class="overlay-btn" style="flex:1; background:rgba(255,255,255,0.1); color:#fff;">EXPLORE GAMES</button>
-            </div>`;
-        }
-        overlayContentEl.innerHTML = html;
-        document.getElementById('start-btn')?.addEventListener('click', startGame);
-        document.getElementById('next-btn')?.addEventListener('click', startNextLevel);
-        document.getElementById('restart-btn')?.addEventListener('click', startGame);
-        document.getElementById('resume-btn')?.addEventListener('click', () => { isPaused = false; pauseEl.style.display = 'none'; gameState = 'PLAYING'; hideOverlay(); updateUI(); });
-        document.getElementById('home-btn')?.addEventListener('click', () => window.location.href = '../index.html');
-        document.getElementById('explore-btn')?.addEventListener('click', () => window.open('../index.html#games', '_blank'));
-      }
-
-      function hideOverlay() {
-        overlayEl.classList.remove('show');
-      }
-
-      function startGame() {
-        snake = [...INITIAL_SNAKE];
-        direction = { ...INITIAL_DIRECTION };
-        nextDirection = { ...INITIAL_DIRECTION };
-        score = 0; level = 1; foodEaten = 0;
-        currentTheme = THEMES[0];
-        gameState = 'PLAYING';
-        isPaused = false;
-        hideOverlay();
-        placeFood();
-        updateUI();
-      }
-
-      function startNextLevel() {
-        if (level < LEVELS.length) {
-          level++;
-          foodEaten = 0;
-          currentTheme = THEMES[(level - 1) % THEMES.length];
-          snake = [...INITIAL_SNAKE];
-          direction = { ...INITIAL_DIRECTION };
-          nextDirection = { ...INITIAL_DIRECTION };
-          gameState = 'PLAYING';
-          hideOverlay();
-          placeFood();
-          updateUI();
-        }
-      }
-
-      function tick() {
-        if (gameState !== 'PLAYING' || isPaused) return;
-
-        direction = { ...nextDirection };
-        const head = snake[0];
-        const newHead = { x: head.x + direction.x, y: head.y + direction.y };
-
-        if (newHead.x < 0 || newHead.x >= GRID_SIZE || newHead.y < 0 || newHead.y >= GRID_SIZE || 
-            snake.some(s => s.x === newHead.x && s.y === newHead.y)) {
-          gameState = 'GAME_OVER';
-          showOverlay('GAME_OVER');
-          return;
-        }
-
-        snake.unshift(newHead);
-
-        if (newHead.x === food.x && newHead.y === food.y) {
-          score += level * 10;
-          foodEaten++;
-          createExplosion(food.x, food.y, currentTheme.accent);
-          if (score > bestScore) {
-            bestScore = score;
-            localStorage.setItem('neon-snake-best', bestScore);
-          }
-          if (foodEaten >= LEVELS[level - 1].need) {
-            gameState = 'LEVEL_UP';
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: [currentTheme.primary, currentTheme.secondary] });
-            showOverlay('LEVEL_UP');
-          } else {
-            placeFood();
-          }
-        } else {
-          snake.pop();
-        }
-        updateUI();
-      }
-
-      function draw(time) {
-        requestAnimationFrame(draw);
-        
-        const cellSize = canvas.width / GRID_SIZE;
-        
-        // Clear with slight trail
-        ctx.fillStyle = 'rgba(2, 6, 23, 0.3)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Grid dots
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
-        for (let x = 0; x < GRID_SIZE; x++) {
-          for (let y = 0; y < GRID_SIZE; y++) {
-            ctx.beginPath(); ctx.arc(x * cellSize + cellSize/2, y * cellSize + cellSize/2, 1, 0, Math.PI*2); ctx.fill();
-          }
-        }
-
-        // Particles
-        particles = particles.filter(p => p.life > 0);
-        particles.forEach(p => { p.update(); p.draw(ctx); });
-
-        // Food
-        const pulse = Math.sin(time / 150) * 3;
-        ctx.shadowBlur = 20 + pulse;
-        ctx.shadowColor = currentTheme.accent;
-        ctx.fillStyle = currentTheme.accent;
-        ctx.beginPath();
-        ctx.arc(food.x * cellSize + cellSize/2, food.y * cellSize + cellSize / 2, (cellSize/2 - 3) + pulse/2, 0, Math.PI*2);
-        ctx.fill();
-
-        // Snake
-        snake.forEach((s, i) => {
-          const isHead = i === 0;
-          ctx.shadowBlur = isHead ? 20 : 0;
-          ctx.shadowColor = currentTheme.primary;
-          
-          const grad = ctx.createLinearGradient(s.x * cellSize, s.y * cellSize, (s.x+1)*cellSize, (s.y+1)*cellSize);
-          grad.addColorStop(0, isHead ? currentTheme.primary : currentTheme.secondary);
-          grad.addColorStop(1, isHead ? currentTheme.secondary : 'rgba(0,0,0,0)');
-          
-          ctx.fillStyle = grad;
-          ctx.beginPath();
-          ctx.roundRect(s.x * cellSize + (isHead ? 1 : 2), s.y * cellSize + (isHead ? 1 : 2), cellSize - (isHead ? 2 : 4), cellSize - (isHead ? 2 : 4), 6);
-          ctx.fill();
-        });
-
-        ctx.shadowBlur = 0;
-
-        // Game Logic Tick
-        const now = performance.now();
-        if (now - lastTick > LEVELS[level - 1].speed) {
-          tick();
-          lastTick = now;
-        }
-      }
-
-      // --- Controls ---
-      const handleInput = (key) => {
-        if (gameState !== 'PLAYING') return;
-        switch(key) {
-          case 'ArrowUp': if (direction.y === 0) nextDirection = { x: 0, y: -1 }; break;
-          case 'ArrowDown': if (direction.y === 0) nextDirection = { x: 0, y: 1 }; break;
-          case 'ArrowLeft': if (direction.x === 0) nextDirection = { x: -1, y: 0 }; break;
-          case 'ArrowRight': if (direction.x === 0) nextDirection = { x: 1, y: 0 }; break;
-          case ' ': isPaused = !isPaused; if (isPaused) { gameState = 'PAUSED'; showOverlay('PAUSED'); } else { gameState = 'PLAYING'; hideOverlay(); } updateUI(); break;
-        }
-      };
-
-      window.addEventListener('keydown', e => handleInput(e.key));
-      document.getElementById('btn-up').onclick = () => handleInput('ArrowUp');
-      document.getElementById('btn-down').onclick = () => handleInput('ArrowDown');
-      document.getElementById('btn-left').onclick = () => handleInput('ArrowLeft');
-      document.getElementById('btn-right').onclick = () => handleInput('ArrowRight');
-      document.getElementById('btn-center').onclick = () => handleInput(' ');
-
-      // --- Init ---
-      updateUI();
-      showOverlay('IDLE');
-      requestAnimationFrame(draw);
-    </script>
-  </body>
+  document.getElementById('best-val').textContent = bestScore;
+  showOverlay('IDLE');
+  requestAnimationFrame(draw);
+</script>
+</body>
 </html>
-

@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { background:#020617; font-family:'Outfit',sans-serif; color:#fff; min-height:100vh; overflow:hidden; touch-action:none; display:flex; flex-direction:column; align-items:center; justify-content:center; padding-bottom:220px; }
+    body { background:#020617; font-family:'Outfit',sans-serif; color:#fff; min-height:100vh; overflow:hidden; touch-action:none; display:flex; flex-direction:column; align-items:center; justify-content:center; }
     .bg { position:fixed; inset:0; z-index:-1; background:radial-gradient(ellipse at 20% 50%,rgba(112,0,255,0.08) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(0,242,254,0.06) 0%,transparent 60%); }
     .game-header { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:12px 20px; background:rgba(2,6,23,0.9); border-bottom:1px solid rgba(255,255,255,0.06); backdrop-filter:blur(20px); }
     .brand { display:flex; align-items:center; gap:10px; text-decoration:none; }
@@ -29,18 +29,31 @@
     canvas { display:block; }
     #msg { margin-top:6px; font-size:12px; color:rgba(255,255,255,0.3); letter-spacing:1px; text-align:center; min-height:18px; }
     #msg b { color:#00f2fe; }
-    /* D-pad — left/right pinned to screen edges, up/down/pause in center */
+    /* D-pad — desktop: compact centered grid */
     #dpad {
-      position:fixed; bottom:16px; left:0; right:0;
-      display:flex; align-items:center; justify-content:space-between;
-      padding:0 12px; pointer-events:none; z-index:50;
+      display:grid; grid-template-columns:60px 60px 60px; grid-template-rows:60px 60px 60px;
+      gap:6px; margin-top:10px;
     }
-    .dpad-side { pointer-events:auto; width:min(130px,36vw); height:72px; background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.14); border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:32px; cursor:pointer; user-select:none; -webkit-tap-highlight-color:transparent; transition:background 0.1s,border-color 0.1s; color:#fff; }
+    .dpad-side { width:60px; height:60px; background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.14); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; user-select:none; -webkit-tap-highlight-color:transparent; transition:background 0.1s,border-color 0.1s; color:#fff; }
     .dpad-side:active { background:rgba(0,242,254,0.22); border-color:rgba(0,242,254,0.7); }
-    .dpad-center-col { pointer-events:auto; display:flex; flex-direction:column; align-items:center; gap:6px; }
-    .dpad-btn { width:68px; height:58px; background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.14); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:26px; cursor:pointer; user-select:none; -webkit-tap-highlight-color:transparent; transition:background 0.1s,border-color 0.1s; color:#fff; }
+    .dpad-center-col { display:contents; }
+    .dpad-btn { width:60px; height:60px; background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.14); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; user-select:none; -webkit-tap-highlight-color:transparent; transition:background 0.1s,border-color 0.1s; color:#fff; }
     .dpad-btn:active { background:rgba(0,242,254,0.22); border-color:rgba(0,242,254,0.7); }
-    .dpad-pause { font-size:18px; background:linear-gradient(135deg,rgba(0,242,254,0.12),rgba(112,0,255,0.12)); border-color:rgba(0,242,254,0.3); }
+    .dpad-pause { font-size:16px; background:linear-gradient(135deg,rgba(0,242,254,0.12),rgba(112,0,255,0.12)); border-color:rgba(0,242,254,0.3); }
+    /* Mobile only: left/right pinned to screen edges */
+    @media (max-width:768px) {
+      body { padding-bottom:220px; }
+      #dpad {
+        position:fixed; bottom:16px; left:0; right:0;
+        display:flex; align-items:center; justify-content:space-between;
+        padding:0 12px; pointer-events:none; z-index:50;
+        grid-template-columns:unset; grid-template-rows:unset; gap:unset; margin-top:0;
+      }
+      .dpad-side { pointer-events:auto; width:min(130px,36vw); height:72px; border-radius:18px; font-size:32px; }
+      .dpad-center-col { pointer-events:auto; display:flex; flex-direction:column; align-items:center; gap:6px; }
+      .dpad-btn { width:68px; height:58px; font-size:26px; }
+      .dpad-pause { font-size:18px; }
+    }
     .overlay { position:fixed; inset:0; z-index:200; background:rgba(2,6,23,0.95); backdrop-filter:blur(20px); display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.3s ease; }
     .overlay.show { opacity:1; pointer-events:auto; }
     .overlay-content { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:28px 24px; text-align:center; max-width:300px; width:90vw; }

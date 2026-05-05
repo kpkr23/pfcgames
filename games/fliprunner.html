@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Gravity Flip Runner – PFC Games</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#020617; font-family:'Outfit',sans-serif; color:#fff; min-height:100vh; overflow:hidden; touch-action:none; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .bg { position:fixed; inset:0; z-index:-1; background:radial-gradient(ellipse at 20% 50%,rgba(112,0,255,0.08) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(0,242,254,0.06) 0%,transparent 60%); }
+  .game-header { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:12px 20px; background:rgba(2,6,23,0.9); border-bottom:1px solid rgba(255,255,255,0.06); backdrop-filter:blur(20px); }
+  .brand { display:flex; align-items:center; gap:10px; text-decoration:none; }
+  .brand img { height:32px; width:auto; object-fit:contain; filter:drop-shadow(0 0 8px rgba(0,242,254,0.3)); }
+  .brand-text { font-size:13px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:#fff; }
+  .back-btn { display:inline-flex; align-items:center; gap:6px; padding:7px 14px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:rgba(255,255,255,0.6); text-decoration:none; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; transition:all 0.3s ease; }
+  .back-btn:hover { border-color:rgba(0,242,254,0.4); color:#00f2fe; }
+  .game-title { margin-top:70px; font-size:clamp(14px,3.5vw,22px); font-weight:800; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#fff 40%,#00f2fe 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:6px; text-align:center; }
+
+  #game {
+    position:relative;
+    width:min(860px,96vw);
+    height:min(460px,42vh);
+    background:linear-gradient(180deg,#09111f 0%,#14233c 35%,#0f1a2f 100%);
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 0 0 1px rgba(0,242,254,0.12), 0 24px 70px rgba(0,0,0,0.6);
+  }
+  #game::before {
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(circle at 20% 10%,rgba(255,255,255,.06),transparent 20%),
+              radial-gradient(circle at 80% 20%,rgba(0,255,255,.05),transparent 18%),
+              linear-gradient(180deg,rgba(255,255,255,.04),transparent 35%,rgba(255,255,255,.06) 55%,transparent 100%);
+  }
+  #game::after {
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px) 0 0/100% 40px,
+              linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px) 0 0/40px 100%;
+  }
+
+  .scorebar { position:absolute; top:12px; left:14px; color:#eefcff; font-size:15px; letter-spacing:.02em; text-shadow:0 0 12px rgba(0,255,255,.15); z-index:2; font-weight:700; }
+
+  .player {
+    position:absolute; width:48px; height:72px; left:110px; bottom:60px;
+    background:transparent;
+    transform-origin:center center;
+    transition:transform .22s cubic-bezier(0.175,0.885,0.32,1.275);
+    z-index:3;
+  }
+  #runner-canvas { display:block; }
+
+  .obstacle {
+    position:absolute; width:32px;
+    background:linear-gradient(180deg,#ff4f79,#ffb742);
+    border-radius:12px; overflow:hidden;
+    box-shadow:0 0 16px rgba(255,95,114,.22);
+  }
+  .obstacle::before { content:""; position:absolute; left:50%; top:50%; width:90%; height:32%; background:rgba(255,255,255,.1); transform:translate(-50%,-50%) rotate(25deg); border-radius:50%; }
+  .obstacle.top { top:0; border-bottom-left-radius:0; border-bottom-right-radius:0; }
+  .obstacle.bottom { bottom:0; border-top-left-radius:0; border-top-right-radius:0; }
+  .obstacle.sweep { background:linear-gradient(180deg,#cb2d3e,#ef473a); }
+
+  #start-screen {
+    position:absolute; inset:0; background:rgba(0,0,0,.75);
+    display:flex; align-items:center; justify-content:center; flex-direction:column;
+    color:white; gap:14px; padding:24px; text-align:center; z-index:4;
+  }
+  #start-screen h2 { font-size:clamp(18px,4vw,28px); letter-spacing:.03em; }
+  #start-screen p { max-width:300px; line-height:1.55; color:#cdd7e0; font-size:14px; }
+  .diff-buttons { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+  .diff-button { padding:10px 18px; border-radius:999px; border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.08); color:#eefcff; cursor:pointer; transition:.2s ease; font-family:'Outfit',sans-serif; font-size:13px; font-weight:700; min-height:44px; }
+  .diff-button.active, .diff-button:hover { background:linear-gradient(135deg,#00f5d4,#2081ff); border-color:rgba(255,255,255,.4); }
+  #start-screen .start-game-btn { padding:14px 32px; border-radius:14px; background:linear-gradient(135deg,#00f5d4,#2081ff); color:#05121f; font-size:15px; font-weight:800; min-width:180px; min-height:50px; border:none; cursor:pointer; font-family:'Outfit',sans-serif; }
+  .hint { color:#9fb8cc; font-size:13px; }
+
+  /* Big flip button below game */
+  #flip-area { margin-top:12px; display:flex; flex-direction:column; align-items:center; gap:8px; }
+  #flip-btn {
+    width:min(280px,80vw); height:68px;
+    background:linear-gradient(135deg,rgba(0,242,254,0.12),rgba(112,0,255,0.12));
+    border:2px solid rgba(0,242,254,0.3);
+    border-radius:18px; color:#00f2fe;
+    display:flex; align-items:center; justify-content:center;
+    font-size:28px; font-weight:800; gap:10px;
+    cursor:pointer; user-select:none; -webkit-tap-highlight-color:transparent;
+    transition:all 0.1s ease; letter-spacing:1px;
+    font-family:'Outfit',sans-serif;
+  }
+  #flip-btn:active { background:linear-gradient(135deg,rgba(0,242,254,0.25),rgba(112,0,255,0.25)); transform:scale(0.96); }
+  .flip-hint { font-size:11px; color:rgba(255,255,255,0.2); letter-spacing:1px; text-transform:uppercase; }
+
+  .particle { position:absolute; width:7px; height:7px; background:radial-gradient(circle,#a9feff,#0a6bd3); border-radius:50%; opacity:.9; pointer-events:none; z-index:2; }
+  .game-footer { position:fixed; bottom:0; left:0; right:0; text-align:center; padding:5px; font-size:10px; color:rgba(255,255,255,0.1); letter-spacing:1px; text-transform:uppercase; }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="game-header">
+    <a class="brand" href="../index.html">
+      <img src="../pfc logo.png" alt="PFC Games">
+      <span class="brand-text">PFC Games</span>
+    </a>
+    <a class="back-btn" href="../index.html">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      Home
+    </a>
+  </div>
+
+  <div class="game-title">⚡ Gravity Flip Runner</div>
+
+  <div id="game">
+    <div class="scorebar" id="score-bar">Score: 0 | Level: 1 | Medium</div>
+    <div class="player" id="player"><canvas id="runner-canvas" width="48" height="72"></canvas></div>
+    <div id="start-screen">
+      <h2>Gravity Flip Runner</h2>
+      <p>Flip gravity to dodge obstacles. Survive as long as possible!</p>
+      <div class="diff-buttons">
+        <button class="diff-button" data-diff="easy">Easy</button>
+        <button class="diff-button active" data-diff="medium">Medium</button>
+        <button class="diff-button" data-diff="hard">Hard</button>
+        <button class="diff-button" data-diff="extreme">Extreme</button>
+      </div>
+      <button class="start-game-btn" onclick="startGame()">▶ Start Game</button>
+      <div class="hint">Tap the big button below or press Space to flip!</div>
+    </div>
+  </div>
+
+  <div id="flip-area">
+    <button id="flip-btn">⇅ FLIP GRAVITY</button>
+    <div class="flip-hint">Tap button · Space key · Tap game area</div>
+  </div>
+
+  <div class="game-footer">© PFC Games Studio · All Rights Reserved</div>
+
+<script>
+  const game = document.getElementById('game');
+  const player = document.getElementById('player');
+  const runnerCanvas = document.getElementById('runner-canvas');
+  const rctx = runnerCanvas.getContext('2d');
+  const scoreBar = document.getElementById('score-bar');
+  const startScreen = document.getElementById('start-screen');
+  const flipBtn = document.getElementById('flip-btn');
+
+  const DIFF = {
+    easy:    { speed:4.2,  spawn:1600, gravity:0.48, label:'Easy' },
+    medium:  { speed:5.6,  spawn:1280, gravity:0.63, label:'Medium' },
+    hard:    { speed:7.0,  spawn:1020, gravity:0.75, label:'Hard' },
+    extreme: { speed:8.4,  spawn:840,  gravity:0.86, label:'Extreme' }
+  };
+
+  const GROUND = 58;
+  let currentDiff = 'medium', gravity, velocity = 0, isFlipped = false;
+  let obstacles = [], running = false, score = 0, level = 1, speedMod = 0;
+  let playerBottom = GROUND, spawnTimer = null;
+  let bestScore = Number(localStorage.getItem('flipRunnerBest') || 0);
+  let runFrame = 0;
+
+  function drawRunner(frame) {
+    rctx.clearRect(0, 0, 48, 72);
+    const t = (frame % 20) / 20 * Math.PI * 2;
+    const c = '#00f2fe', skin = '#ffd6a5', hair = '#1a1a2e';
+    rctx.save(); rctx.globalAlpha = 0.18; rctx.fillStyle = '#000';
+    rctx.beginPath(); rctx.ellipse(24, 70, 14, 4, 0, 0, Math.PI*2); rctx.fill(); rctx.restore();
+    const lSwing = Math.sin(t) * 14, rSwing = -Math.sin(t) * 14;
+    rctx.strokeStyle = c; rctx.lineWidth = 4; rctx.lineCap = 'round';
+    rctx.beginPath(); rctx.moveTo(24, 46); rctx.lineTo(24 - 5 + lSwing * 0.3, 58); rctx.lineTo(24 - 7 + lSwing * 0.6, 68); rctx.stroke();
+    rctx.beginPath(); rctx.moveTo(24, 46); rctx.lineTo(24 + 5 + rSwing * 0.3, 58); rctx.lineTo(24 + 7 + rSwing * 0.6, 68); rctx.stroke();
+    rctx.lineWidth = 5;
+    rctx.beginPath(); rctx.moveTo(24, 24); rctx.lineTo(24, 46); rctx.stroke();
+    const aSwing = Math.sin(t) * 12;
+    rctx.lineWidth = 3.5;
+    rctx.beginPath(); rctx.moveTo(24, 30); rctx.lineTo(14 - aSwing * 0.4, 40 + aSwing * 0.2); rctx.stroke();
+    rctx.beginPath(); rctx.moveTo(24, 30); rctx.lineTo(34 + aSwing * 0.4, 40 - aSwing * 0.2); rctx.stroke();
+    rctx.strokeStyle = skin; rctx.lineWidth = 3;
+    rctx.beginPath(); rctx.moveTo(24, 18); rctx.lineTo(24, 24); rctx.stroke();
+    rctx.fillStyle = skin; rctx.beginPath(); rctx.arc(24, 12, 9, 0, Math.PI*2); rctx.fill();
+    rctx.fillStyle = hair; rctx.beginPath(); rctx.arc(24, 8, 9, Math.PI, 0); rctx.fill();
+    rctx.fillStyle = '#333'; rctx.beginPath(); rctx.arc(28, 12, 1.8, 0, Math.PI*2); rctx.fill();
+    rctx.fillStyle = '#7000ff';
+    rctx.beginPath(); rctx.ellipse(24 - 7 + lSwing * 0.6, 69, 6, 3, 0, 0, Math.PI*2); rctx.fill();
+    rctx.beginPath(); rctx.ellipse(24 + 7 + rSwing * 0.6, 69, 6, 3, 0, 0, Math.PI*2); rctx.fill();
+  }
+
+  function animateRunner() {
+    if (running) runFrame++;
+    drawRunner(runFrame);
+    requestAnimationFrame(animateRunner);
+  }
+
+  document.querySelectorAll('.diff-button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentDiff = btn.dataset.diff;
+      document.querySelectorAll('.diff-button').forEach(b => b.classList.toggle('active', b === btn));
+    });
+  });
+
+  function startGame() {
+    running = true;
+    startScreen.style.display = 'none';
+    score = 0; level = 1; speedMod = 0; isFlipped = false; velocity = 0;
+    gravity = DIFF[currentDiff].gravity;
+    playerBottom = GROUND;
+    obstacles.forEach(o => o.remove()); obstacles = [];
+    player.style.bottom = GROUND + 'px';
+    player.style.transform = 'rotate(0deg)';
+    updateScoreBar();
+    if (spawnTimer) clearTimeout(spawnTimer);
+    scheduleObstacle();
+    requestAnimationFrame(loop);
+  }
+
+  function flip() {
+    if (!running) return;
+    velocity = isFlipped ? 9 : -9;
+    isFlipped = !isFlipped;
+    player.style.transform = isFlipped ? 'rotate(180deg)' : 'rotate(0deg)';
+    burst();
+  }
+
+  function scheduleObstacle() {
+    if (!running) return;
+    spawnObstacle();
+    const base = DIFF[currentDiff].spawn;
+    const interval = Math.max(500, base - level * 65 - Math.random() * 110);
+    spawnTimer = setTimeout(scheduleObstacle, interval);
+  }
+
+  function spawnObstacle() {
+    const obs = document.createElement('div');
+    obs.className = 'obstacle';
+    const isTop = Math.random() > 0.5;
+    obs.classList.add(isTop ? 'top' : 'bottom');
+    const isSweep = Math.random() > 0.78;
+    const gameH = game.clientHeight;
+    const gap = 130; // minimum gap the runner must fit through
+    const maxH = gameH - gap - GROUND;
+    if (isSweep) {
+      obs.classList.add('sweep');
+      obs.style.height = '38px';
+      obs.style[isTop ? 'top' : 'bottom'] = '18px';
+    } else {
+      obs.style.height = Math.floor(Math.random() * (maxH * 0.4) + maxH * 0.25) + 'px';
+    }
+    obs.style.left = game.clientWidth + 'px';
+    game.appendChild(obs);
+    obstacles.push(obs);
+  }
+
+  function loop() {
+    if (!running) return;
+    gravity = DIFF[currentDiff].gravity;
+    velocity += isFlipped ? -gravity : gravity;
+    let bottom = playerBottom - velocity;
+    const maxBottom = game.clientHeight - player.clientHeight;
+    bottom = Math.max(GROUND, Math.min(maxBottom, bottom));
+    playerBottom = bottom;
+    player.style.bottom = bottom + 'px';
+
+    const moveSpeed = DIFF[currentDiff].speed + speedMod;
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+      const obs = obstacles[i];
+      obs.style.left = obs.offsetLeft - moveSpeed + 'px';
+      if (checkCollision(player, obs)) { endGame(); return; }
+      if (obs.offsetLeft < -120) {
+        obs.remove(); obstacles.splice(i, 1);
+        score += obs.classList.contains('sweep') ? 2 : 1;
+        updateProgress();
+      }
+    }
+    requestAnimationFrame(loop);
+  }
+
+  function updateProgress() {
+    const need = 8 + level * 5;
+    if (score >= need) {
+      level++; speedMod += 0.5;
+      const rate = Math.max(0.2, 0.5 - level * 0.04);
+      // runner speed handled by runFrame increment
+      flashScore();
+    }
+    updateScoreBar();
+  }
+
+  function updateScoreBar() {
+    scoreBar.textContent = `Score: ${score} | Level: ${level} | ${DIFF[currentDiff].label}`;
+  }
+
+  function flashScore() {
+    scoreBar.style.color = '#fffc7f';
+    setTimeout(() => scoreBar.style.color = '#eefcff', 150);
+  }
+
+  function checkCollision(a, b) {
+    const r1 = a.getBoundingClientRect(), r2 = b.getBoundingClientRect();
+    // Shrink hitbox slightly for fairness
+    const margin = 6;
+    return !(r1.top + margin > r2.bottom || r1.bottom - margin < r2.top || r1.right - margin < r2.left || r1.left + margin > r2.right);
+  }
+
+  function endGame() {
+    running = false;
+    if (spawnTimer) clearTimeout(spawnTimer);
+    if (score > bestScore) { bestScore = score; localStorage.setItem('flipRunnerBest', bestScore); }
+    startScreen.style.display = 'flex';
+    startScreen.innerHTML = `
+      <h2>Game Over!</h2>
+      <p>Score: <b style="color:#00f2fe">${score}</b></p>
+      <p style="color:rgba(255,255,255,0.4);font-size:13px">Best: ${bestScore}</p>
+      <button class="start-game-btn" onclick="location.reload()">↺ Restart</button>
+      <a href="../index.html" style="color:rgba(255,255,255,0.4);font-size:13px;text-decoration:none;margin-top:4px">← Back to Home</a>
+    `;
+  }
+
+  function burst() {
+    for (let i = 0; i < 8; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = player.offsetLeft + 16 + 'px';
+      p.style.top = player.offsetTop + 16 + 'px';
+      game.appendChild(p);
+      const angle = Math.random() * Math.PI * 2, speed = Math.random() * 4 + 2;
+      let x = 0, y = 0;
+      const id = setInterval(() => {
+        x += Math.cos(angle) * speed; y += Math.sin(angle) * speed;
+        p.style.transform = `translate(${x}px,${y}px)`;
+        p.style.opacity = Number(p.style.opacity || 1) - 0.05;
+        if (Number(p.style.opacity) <= 0) { p.remove(); clearInterval(id); }
+      }, 16);
+    }
+  }
+
+  // Controls
+  animateRunner();
+  document.addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); flip(); } });
+  game.addEventListener('click', e => { if (e.target === game || e.target === player) flip(); });
+  flipBtn.addEventListener('touchstart', e => { e.preventDefault(); flip(); }, { passive: false });
+  flipBtn.addEventListener('click', flip);
+</script>
+</body>
+</html>
